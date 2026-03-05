@@ -121,8 +121,10 @@ export default function EmailGate({
       }
 
       // Fire Facebook Pixel Lead event
-      if (typeof window !== 'undefined' && typeof (window as Window & { fbq?: (...args: unknown[]) => void }).fbq === 'function') {
-        ;(window as Window & { fbq: (...args: unknown[]) => void }).fbq('track', 'Lead')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(window as any).fbq('track', 'Lead')
       }
 
       // Call the AI analysis endpoint
