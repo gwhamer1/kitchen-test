@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  background-color: #F5EDE0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent iOS double-tap zoom on buttons */
+button,
+a {
+  touch-action: manipulation;
+}
+
+/* Custom scrollbar for the results card */
+.report-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.report-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+.report-scroll::-webkit-scrollbar-thumb {
+  background: rgba(232, 114, 74, 0.4);
+  border-radius: 4px;
+}
