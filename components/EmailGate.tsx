@@ -120,6 +120,11 @@ export default function EmailGate({
         console.error('Email capture failed (non-blocking):', captureErr)
       }
 
+      // Fire Facebook Pixel Lead event
+      if (typeof window !== 'undefined' && typeof (window as Window & { fbq?: (...args: unknown[]) => void }).fbq === 'function') {
+        ;(window as Window & { fbq: (...args: unknown[]) => void }).fbq('track', 'Lead')
+      }
+
       // Call the AI analysis endpoint
       const formattedAnswers = formatAnswersForAI(answers)
       const response = await fetch('/api/analyze', {
