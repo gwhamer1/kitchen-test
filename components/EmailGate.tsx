@@ -127,6 +127,13 @@ export default function EmailGate({
         ;(window as any).fbq('track', 'Lead')
       }
 
+      // Fire Bing UET conversion event
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (typeof window !== 'undefined' && (window as any).uetq) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(window as any).uetq.push('event', 'submit_lead_form', {})
+      }
+
       // Call the AI analysis endpoint
       const formattedAnswers = formatAnswersForAI(answers)
       const response = await fetch('/api/analyze', {
