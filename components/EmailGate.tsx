@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import type { QuizAnswers, UserInfo } from '@/lib/types'
 
 interface EmailGateProps {
@@ -92,6 +92,7 @@ export default function EmailGate({
 }: EmailGateProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const leadTrackedRef = useRef(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -120,18 +121,22 @@ export default function EmailGate({
         console.error('Email capture failed (non-blocking):', captureErr)
       }
 
-      // Fire Facebook Pixel Lead event
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (typeof window !== 'undefined' && (window as any).fbq) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(window as any).fbq('track', 'Lead')
-      }
+      if (!leadTrackedRef.current) {
+        leadTrackedRef.current = true
 
-      // Fire Bing UET conversion event
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (typeof window !== 'undefined' && (window as any).uetq) {
+        // Fire Facebook Pixel Lead event
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(window as any).uetq.push('event', 'submit_lead_form', {})
+        if (typeof window !== 'undefined' && (window as any).fbq) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ;(window as any).fbq('track', 'Lead')
+        }
+
+        // Fire Bing UET conversion event
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (typeof window !== 'undefined' && (window as any).uetq) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ;(window as any).uetq.push('event', 'submit_lead_form', {})
+        }
       }
 
       // Call the AI analysis endpoint
