@@ -128,7 +128,8 @@ export default function EmailGate({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (typeof window !== 'undefined' && (window as any).fbq) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ;(window as any).fbq('track', 'Lead')
+          const eventId = `lead_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+          ;(window as any).fbq('track', 'Lead', {}, { eventID: eventId })
         }
 
         // Fire Bing UET conversion event
