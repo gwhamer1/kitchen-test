@@ -7,31 +7,8 @@ interface EmailGateProps {
   userInfo: UserInfo
   setUserInfo: (info: UserInfo) => void
   answers: QuizAnswers
-  setReport: (report: string) => void
-  setRiskLevel: (level: string) => void
   onComplete: () => void
   onBack: () => void
-}
-
-function formatAnswersForAI(answers: QuizAnswers): string {
-  const painAreasText =
-    answers.painAreas.length > 0 ? answers.painAreas.join(' and ') : 'None yet'
-
-  return [
-    `Age: ${answers.age}`,
-    `Plays: ${answers.frequency}`,
-    `Pain areas: ${painAreasText}`,
-    `Injury history: ${answers.injuryHistory}`,
-    `Biggest fear: ${answers.biggestFear}`,
-  ].join(', ')
-}
-
-function extractRiskLevel(report: string): string {
-  const lower = report.toLowerCase()
-  if (lower.includes('elevated risk') || report.includes('🔴')) return 'elevated'
-  if (lower.includes('moderate risk') || report.includes('🟡')) return 'moderate'
-  if (lower.includes('low risk') || report.includes('🟢')) return 'low'
-  return 'moderate'
 }
 
 function LoadingScreen() {
@@ -60,7 +37,7 @@ function LoadingScreen() {
         </div>
 
         <h2 className="text-xl font-bold text-[#1a1f2e] mb-2">
-          Analyzing your movement patterns...
+          Sending your results link...
         </h2>
         <p className="text-[#1a1f2e]/50 text-sm leading-relaxed">
           Building your personalized Kitchen Test™ risk report
@@ -81,16 +58,74 @@ function LoadingScreen() {
   )
 }
 
+function CheckEmailScreen({ email }: { email: string }) {
+  return (
+    <div className="min-h-screen bg-[#F5EDE0] flex flex-col animate-fadeSlideIn">
+      <div className="flex-1 flex flex-col justify-center px-5 py-12 max-w-lg mx-auto w-full">
+        {/* Mini logo */}
+        <div className="flex items-center gap-2.5 mb-8">
+          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-sm">
+            <svg
+              className="w-[18px] h-[18px] text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2.5}
+            >
+              <path d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <span className="font-bold text-[#1a1f2e] text-base">
+            The Kitchen Test™
+          </span>
+        </div>
+
+        {/* Email icon */}
+        <div className="w-14 h-14 bg-[#1a1f2e] rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+          <svg
+            className="w-7 h-7 text-[#E8724A]"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.8}
+              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            />
+          </svg>
+        </div>
+
+        <h2 className="text-[1.9rem] sm:text-[2.1rem] font-extrabold text-[#1a1f2e] leading-tight mb-3">
+          Your Results Are Ready 🎉
+        </h2>
+
+        <p className="text-[#1a1f2e]/65 leading-relaxed mb-3 text-[0.95rem]">
+          We sent your Kitchen Test™ results to{' '}
+          <span className="font-semibold text-[#1a1f2e]">{email}</span>.
+          Click the link in your email to unlock them.
+        </p>
+
+        <p className="text-[#1a1f2e]/40 text-sm leading-relaxed">
+          Check spam if you don&apos;t see it in 2 minutes.
+        </p>
+      </div>
+    </div>
+  )
+}
+
 export default function EmailGate({
   userInfo,
   setUserInfo,
   answers,
-  setReport,
-  setRiskLevel,
   onComplete,
   onBack,
 }: EmailGateProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
   const leadTrackedRef = useRef(false)
 
@@ -105,7 +140,7 @@ export default function EmailGate({
     setError('')
 
     try {
-      // Await Kit subscription + CSV backup before starting AI analysis.
+      // Await Kit subscription + KV token storage before firing tracking.
       // If this fails for any reason, we swallow the error and carry on.
       try {
         await fetch('/api/capture-email', {
@@ -140,23 +175,9 @@ export default function EmailGate({
         }
       }
 
-      // Call the AI analysis endpoint
-      const formattedAnswers = formatAnswersForAI(answers)
-      const response = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers: formattedAnswers }),
-      })
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}))
-        throw new Error(data?.error || 'Failed to generate report')
-      }
-
-      const data = await response.json()
-      setReport(data.report)
-      setRiskLevel(extractRiskLevel(data.report))
-      onComplete()
+      // Show the "Check Your Email" confirmation screen
+      setIsLoading(false)
+      setSubmitted(true)
     } catch (err) {
       console.error(err)
       setError(
@@ -169,6 +190,7 @@ export default function EmailGate({
   }
 
   if (isLoading) return <LoadingScreen />
+  if (submitted) return <CheckEmailScreen email={userInfo.email} />
 
   return (
     <div className="min-h-screen bg-[#F5EDE0] flex flex-col animate-fadeSlideIn">

@@ -51,8 +51,6 @@ export default function Home() {
           userInfo={userInfo}
           setUserInfo={setUserInfo}
           answers={answers}
-          setReport={setReport}
-          setRiskLevel={setRiskLevel}
           onComplete={() => setScreen('results')}
           onBack={() => setScreen('quiz')}
         />
