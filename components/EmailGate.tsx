@@ -140,10 +140,12 @@ export default function EmailGate({
     setError('')
 
     try {
-      // Await Kit subscription + KV token storage before firing tracking.
+      // Await Kit subscription + Redis token storage before firing tracking.
+      // Parse the token from the response and persist it to localStorage so
+      // /results-pending can pick it up after Kit's confirmation redirect.
       // If this fails for any reason, we swallow the error and carry on.
       try {
-        await fetch('/api/capture-email', {
+        const captureRes = await fetch('/api/capture-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -152,6 +154,10 @@ export default function EmailGate({
             answers,
           }),
         })
+        const captureData = await captureRes.json().catch(() => ({}))
+        if (captureData.token) {
+          localStorage.setItem('kt_token', captureData.token)
+        }
       } catch (captureErr) {
         console.error('Email capture failed (non-blocking):', captureErr)
       }
