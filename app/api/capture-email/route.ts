@@ -22,7 +22,9 @@ export async function POST(req: NextRequest) {
       console.error('[Redis] Failed to store token (non-blocking):', kvErr)
     }
 
+    console.log('[Kit] Generated token:', token)
     const resultsUrl = `https://kitchen-test-eta.vercel.app/results?token=${token}`
+    console.log('[Kit] Results URL:', resultsUrl)
 
     const apiKey = process.env.KIT_API_KEY
     const formId = process.env.KIT_FORM_ID
@@ -48,9 +50,12 @@ export async function POST(req: NextRequest) {
       }
     )
 
+    const kitResponseText = await res.text()
+    console.log('[Kit] Response status:', res.status)
+    console.log('[Kit] Response body:', kitResponseText)
+
     if (!res.ok) {
-      const text = await res.text().catch(() => '(no body)')
-      console.error(`[Kit] Subscription failed — HTTP ${res.status}: ${text}`)
+      console.error(`[Kit] Subscription failed — HTTP ${res.status}: ${kitResponseText}`)
       return NextResponse.json({ error: 'Kit subscription failed' }, { status: 502 })
     }
 
