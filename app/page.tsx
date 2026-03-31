@@ -9,11 +9,13 @@ import ThankYou from '@/components/ThankYou'
 import type { QuizAnswers, UserInfo, Screen } from '@/lib/types'
 
 const defaultAnswers: QuizAnswers = {
-  age: '',
+  experience: '',
   frequency: '',
-  painAreas: [],
-  injuryHistory: '',
+  bodyStatus: '',
+  painLocation: '',
   biggestFear: '',
+  pickleballMeaning: '',
+  wouldAct: '',
 }
 
 export default function Home() {

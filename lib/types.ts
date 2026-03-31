@@ -1,9 +1,11 @@
 export interface QuizAnswers {
-  age: string
+  experience: string
   frequency: string
-  painAreas: string[]
-  injuryHistory: string
+  bodyStatus: string
+  painLocation: string
   biggestFear: string
+  pickleballMeaning: string
+  wouldAct: string
 }
 
 export interface UserInfo {

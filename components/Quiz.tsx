@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import type { QuizAnswers } from '@/lib/types'
 
 interface QuizProps {
@@ -10,103 +10,102 @@ interface QuizProps {
   onBack: () => void
 }
 
-type QuestionType = 'single' | 'multi'
-
 interface Question {
   id: keyof QuizAnswers
   number: number
   question: string
   subtitle?: string
   options: string[]
-  type: QuestionType
 }
 
 const QUESTIONS: Question[] = [
   {
-    id: 'age',
+    id: 'experience',
     number: 1,
-    question: 'How old are you?',
-    options: ['Under 45', '45-55', '56-65', '65+'],
-    type: 'single',
+    question: 'How long have you been playing pickleball?',
+    options: [
+      'Less than 1 year — still figuring it out',
+      '1–3 years — getting competitive',
+      '3–5 years — this is my sport',
+      '5+ years — pickleball is life',
+    ],
   },
   {
     id: 'frequency',
     number: 2,
-    question: 'How often do you play pickleball?',
-    options: ['1x/week', '2-3x/week', '4-5x/week', 'Daily'],
-    type: 'single',
+    question: 'How often do you play per week?',
+    options: [
+      'Once a week or less',
+      '2–3 times per week',
+      '4–5 times per week',
+      'Every day I possibly can',
+    ],
   },
   {
-    id: 'painAreas',
+    id: 'bodyStatus',
     number: 3,
-    question: 'Which of these has happened to you on court?',
-    subtitle: 'Select all that apply',
+    question: 'Which best describes your body right now?',
     options: [
-      'Rolled an ankle',
-      'Felt a pop or strain mid-game',
-      'Had to stop playing from pain',
-      'Knee gave out or felt unstable',
-      'Stiff lower back after playing',
-      'None yet — but I\'m worried',
+      'Feeling great — no issues',
+      'A little stiff but it goes away after I warm up',
+      'I play through some discomfort most sessions',
+      "I have a nagging injury I'm managing around",
     ],
-    type: 'multi',
   },
   {
-    id: 'injuryHistory',
+    id: 'painLocation',
     number: 4,
-    question: 'How do you warm up before playing?',
+    question: 'Where do you feel it most when you play?',
     options: [
-      'I go straight to hitting',
-      'A few static stretches',
-      'Light hitting and some movement',
-      'Full structured warm-up routine',
+      'Nowhere — I feel fine',
+      'Ankles or calves',
+      'Knees',
+      'Hips or lower back',
+      'Shoulder, elbow, or wrist',
     ],
-    type: 'single',
   },
   {
     id: 'biggestFear',
     number: 5,
-    question: "What's your biggest fear about your pickleball future?",
+    question: "What's your biggest fear about staying in the game?",
     options: [
-      'A sudden serious injury that ends my playing days',
-      'Chronic pain that slowly grinds me down',
-      'Missing games while my friends keep playing',
-      'Losing my edge and becoming a liability on court',
+      'Getting a serious injury that sidelines me for months',
+      "Slowly breaking down until I can't play anymore",
+      'Not being able to keep up with players my age',
+      "Having to quit the game I love before I'm ready",
     ],
-    type: 'single',
+  },
+  {
+    id: 'pickleballMeaning',
+    number: 6,
+    question: 'What does pickleball mean to you?',
+    options: [
+      "It's my main social life — my people are on that court",
+      "It's how I stay active and healthy",
+      "It's competitive — I want to keep improving",
+      "It's all three — pickleball runs my life",
+    ],
+  },
+  {
+    id: 'wouldAct',
+    number: 7,
+    question:
+      'If you knew exactly which part of your body was most likely to get injured first — would you do something about it?',
+    options: [
+      "100% — I'd fix it immediately",
+      "Probably — if it wasn't too complicated",
+      "Maybe — I'm not sure what I'd do with that info",
+      "Honestly I'd probably just keep playing and hope for the best",
+    ],
   },
 ]
 
-function CheckIcon() {
-  return (
-    <svg
-      className="w-5 h-5 text-white"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2.5}
-    >
-      <path d="M5 13l4 4L19 7" />
-    </svg>
-  )
-}
-
 export default function Quiz({ answers, setAnswers, onComplete, onBack }: QuizProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [tempMulti, setTempMulti] = useState<string[]>([])
   const [advancing, setAdvancing] = useState(false)
 
   const q = QUESTIONS[currentIndex]
   const progress = ((currentIndex + 1) / QUESTIONS.length) * 100
-
-  // Sync multi-select state when returning to question 3
-  useEffect(() => {
-    if (currentIndex === 2) {
-      setTempMulti([...answers.painAreas])
-    }
-  }, [currentIndex]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const advanceTo = (nextIndex: number) => {
     setAdvancing(true)
@@ -123,31 +122,6 @@ export default function Quiz({ answers, setAnswers, onComplete, onBack }: QuizPr
   const handleSingleSelect = (option: string) => {
     if (advancing) return
     const updated = { ...answers, [q.id]: option }
-    setAnswers(updated)
-    advanceTo(currentIndex + 1)
-  }
-
-  const NONE_OPTION = "None yet — but I'm worried"
-
-  const handleMultiToggle = (option: string) => {
-    if (option === NONE_OPTION) {
-      // Selecting the "none" option clears everything else
-      setTempMulti((prev) =>
-        prev.includes(NONE_OPTION) ? [] : [NONE_OPTION]
-      )
-      return
-    }
-    setTempMulti((prev) => {
-      const withoutNone = prev.filter((o) => o !== NONE_OPTION)
-      return withoutNone.includes(option)
-        ? withoutNone.filter((o) => o !== option)
-        : [...withoutNone, option]
-    })
-  }
-
-  const handleMultiContinue = () => {
-    const selection = tempMulti.length > 0 ? tempMulti : [NONE_OPTION]
-    const updated = { ...answers, painAreas: selection }
     setAnswers(updated)
     advanceTo(currentIndex + 1)
   }
@@ -226,57 +200,24 @@ export default function Quiz({ answers, setAnswers, onComplete, onBack }: QuizPr
             <div className="mb-7" />
           )}
 
-          {/* Single-select options */}
-          {q.type === 'single' && (
-            <div className="space-y-3">
-              {q.options.map((option) => {
-                const isSelected = answers[q.id] === option
-                return (
-                  <button
-                    key={option}
-                    onClick={() => handleSingleSelect(option)}
-                    className={`w-full text-left px-5 py-4 rounded-2xl font-semibold text-base transition-all duration-150 border-2 shadow-sm active:scale-95 ${
-                      isSelected
-                        ? 'bg-[#E8724A] text-white border-[#E8724A] shadow-md'
-                        : 'bg-white text-[#1a1f2e] border-transparent hover:border-[#E8724A]/30 hover:shadow-md'
-                    }`}
-                  >
-                    {option}
-                  </button>
-                )
-              })}
-            </div>
-          )}
-
-          {/* Multi-select options */}
-          {q.type === 'multi' && (
-            <div className="space-y-3">
-              {q.options.map((option) => {
-                const isSelected = tempMulti.includes(option)
-                return (
-                  <button
-                    key={option}
-                    onClick={() => handleMultiToggle(option)}
-                    className={`w-full text-left px-5 py-4 rounded-2xl font-semibold text-base transition-all duration-150 border-2 shadow-sm flex items-center justify-between ${
-                      isSelected
-                        ? 'bg-[#E8724A] text-white border-[#E8724A] shadow-md'
-                        : 'bg-white text-[#1a1f2e] border-transparent hover:border-[#E8724A]/30 hover:shadow-md'
-                    }`}
-                  >
-                    <span>{option}</span>
-                    {isSelected && <CheckIcon />}
-                  </button>
-                )
-              })}
-
-              <button
-                onClick={handleMultiContinue}
-                className="w-full bg-[#E8724A] text-white font-bold text-lg py-4 rounded-2xl mt-2 hover:bg-[#d4623c] active:scale-95 transition-all duration-150 shadow-lg"
-              >
-                Continue →
-              </button>
-            </div>
-          )}
+          <div className="space-y-3">
+            {q.options.map((option) => {
+              const isSelected = answers[q.id] === option
+              return (
+                <button
+                  key={option}
+                  onClick={() => handleSingleSelect(option)}
+                  className={`w-full text-left px-5 py-4 rounded-2xl font-semibold text-base transition-all duration-150 border-2 shadow-sm active:scale-95 ${
+                    isSelected
+                      ? 'bg-[#E8724A] text-white border-[#E8724A] shadow-md'
+                      : 'bg-white text-[#1a1f2e] border-transparent hover:border-[#E8724A]/30 hover:shadow-md'
+                  }`}
+                >
+                  {option}
+                </button>
+              )
+            })}
+          </div>
         </div>
       </div>
     </div>

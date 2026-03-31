@@ -1,16 +1,15 @@
 import type { QuizAnswers } from '@/lib/types'
 
 export function formatAnswersForAI(answers: QuizAnswers): string {
-  const painAreasText =
-    answers.painAreas.length > 0 ? answers.painAreas.join(' and ') : 'None yet'
-
   return [
-    `Age: ${answers.age}`,
-    `Plays: ${answers.frequency}`,
-    `Pain areas: ${painAreasText}`,
-    `Injury history: ${answers.injuryHistory}`,
-    `Biggest fear: ${answers.biggestFear}`,
-  ].join(', ')
+    `Q1 – Experience: ${answers.experience}`,
+    `Q2 – Frequency: ${answers.frequency}`,
+    `Q3 – Body status: ${answers.bodyStatus}`,
+    `Q4 – Pain location: ${answers.painLocation}`,
+    `Q5 – Biggest fear: ${answers.biggestFear}`,
+    `Q6 – What pickleball means to them: ${answers.pickleballMeaning}`,
+    `Q7 – Would they act: ${answers.wouldAct}`,
+  ].join('\n')
 }
 
 export function extractRiskLevel(report: string): string {

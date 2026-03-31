@@ -100,17 +100,17 @@ function CheckEmailScreen({ email }: { email: string }) {
         </div>
 
         <h2 className="text-[1.9rem] sm:text-[2.1rem] font-extrabold text-[#1a1f2e] leading-tight mb-3">
-          Your Results Are Ready 🎉
+          One Last Step to See Your Results 🎉
         </h2>
 
         <p className="text-[#1a1f2e]/65 leading-relaxed mb-3 text-[0.95rem]">
-          We sent your Kitchen Test™ results to{' '}
+          We sent a confirmation email to{' '}
           <span className="font-semibold text-[#1a1f2e]">{email}</span>.
-          Click the link in your email to unlock them.
+          Click the confirm button inside to unlock your personalized Kitchen Test™ injury report.
         </p>
 
         <p className="text-[#1a1f2e]/40 text-sm leading-relaxed">
-          Check spam if you don&apos;t see it in 2 minutes.
+          Check your spam folder if you don&apos;t see it within 2 minutes. We can&apos;t send your results until you confirm.
         </p>
       </div>
     </div>
